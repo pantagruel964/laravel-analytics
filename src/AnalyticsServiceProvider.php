@@ -22,18 +22,19 @@ class AnalyticsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/analytics.php', 'analytics');
+        $this->mergeConfigFrom(__DIR__.'/../config/analytics.php', 'analytics');        
 
-        $analyticsConfig = config('analytics');
+        $this->app->bind(AnalyticsClient::class, function () {
+            $analyticsConfig = config('analytics');
 
-        $this->app->bind(AnalyticsClient::class, function () use ($analyticsConfig) {
             return AnalyticsClientFactory::createForConfig($analyticsConfig);
         });
 
-        $this->app->bind(Analytics::class, function () use ($analyticsConfig) {
-            $this->guardAgainstInvalidConfiguration($analyticsConfig);
+        $this->app->bind(Analytics::class, function () {
+            // $this->guardAgainstInvalidConfiguration($analyticsConfig);
 
             $client = app(AnalyticsClient::class);
+            $analyticsConfig = config('analytics');
 
             return new Analytics($client, $analyticsConfig['view_id']);
         });
